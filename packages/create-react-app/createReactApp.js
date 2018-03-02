@@ -284,7 +284,15 @@ function run(
   useYarn
 ) {
   const packageToInstall = getInstallPackage(version, originalDirectory);
-  const allDependencies = ['react', 'react-dom', packageToInstall];
+  const allDependencies = [
+    '@types/react',
+    '@types/react-dom',
+    '@types/node',
+    'react',
+    'react-dom',
+    'typescript',
+    packageToInstall,
+  ];
 
   console.log('Installing packages. This might take a couple of minutes.');
   getPackageName(packageToInstall)
@@ -298,9 +306,11 @@ function run(
       const isOnline = info.isOnline;
       const packageName = info.packageName;
       console.log(
-        `Installing ${chalk.cyan('react')}, ${chalk.cyan(
-          'react-dom'
-        )}, and ${chalk.cyan(packageName)}...`
+        `Installing ${allDependencies
+          .map(
+            (x, i, a) => `${i === a.length - 1 ? 'and ' : ''}${chalk.cyan(x)}`
+          )
+          .join(', ')}...`
       );
       console.log();
 
@@ -381,7 +391,7 @@ function run(
 }
 
 function getInstallPackage(version, originalDirectory) {
-  let packageToInstall = 'react-scripts';
+  let packageToInstall = '@originalmoose/react-scripts';
   const validSemver = semver.valid(version);
   if (validSemver) {
     packageToInstall += `@${validSemver}`;
@@ -481,7 +491,10 @@ function getPackageName(installPackage) {
     );
   } else if (installPackage.match(/^file:/)) {
     const installPackagePath = installPackage.match(/^file:(.*)?$/)[1];
-    const installPackageJson = require(path.join(installPackagePath, 'package.json'));
+    const installPackageJson = require(path.join(
+      installPackagePath,
+      'package.json'
+    ));
     return Promise.resolve(installPackageJson.name);
   }
   return Promise.resolve(installPackage);
